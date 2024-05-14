@@ -1,6 +1,5 @@
 package com.example.javacalculator;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -10,8 +9,10 @@ import androidx.appcompat.app.AppCompatActivity;
 public class MainActivity extends AppCompatActivity {
 
     private TextView textView;
+    private String currentNumber = "";
+    private String operand = "";
+    private double result = 0;
 
-    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,31 +29,56 @@ public class MainActivity extends AppCompatActivity {
         };
 
         for (int buttonId : buttonIds) {
-            findViewById(Button.class, buttonId).setOnClickListener(new View.OnClickListener() {
+            findViewById(buttonId).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     String buttonText = ((Button) v).getText().toString();
-                    updateTextView(buttonText);
+                    currentNumber += buttonText;
+                    updateTextView();
                 }
             });
         }
 
         for (int operatorButtonId : operatorButtonIds) {
-            findViewById(Button.class, operatorButtonId).setOnClickListener(new View.OnClickListener() {
+            findViewById(operatorButtonId).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String buttonText = ((Button) v).getText().toString();
-                    updateTextView(" " + buttonText + " ");
+                    operand = ((Button) v).getText().toString();
+                    if (!currentNumber.isEmpty()) {
+                        result = Double.parseDouble(currentNumber);
+                        currentNumber = "";
+                    }
                 }
             });
         }
+
+        findViewById(R.id.buttonEquals).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!currentNumber.isEmpty()) {
+                    double secondNumber = Double.parseDouble(currentNumber);
+                    switch (operand) {
+                        case "+":
+                            result += secondNumber;
+                            break;
+                        case "-":
+                            result -= secondNumber;
+                            break;
+                        case "*":
+                            result *= secondNumber;
+                            break;
+                        case "/":
+                            result /= secondNumber;
+                            break;
+                    }
+                    currentNumber = "";
+                    updateTextView();
+                }
+            }
+        });
     }
 
-    private Button findViewById(Class<Button> buttonClass, int buttonId) {
-        return buttonClass.cast(findViewById(buttonId));
-    }
-
-    private void updateTextView(String text) {
-        textView.append(text);
+    private void updateTextView() {
+        textView.setText(currentNumber.isEmpty() ? String.valueOf(result) : currentNumber);
     }
 }
